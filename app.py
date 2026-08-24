@@ -8,7 +8,7 @@ from io import BytesIO
 
 st.set_page_config(page_title="ART DİZAYN ERP Panel", page_icon="🏗️", layout="wide")
 
-# PDF / Baskı Özel CSS Stili (Sayfadaki butonları gizler, teklifi tam sayfa yapar)
+# Yazdırma (PDF) Modunda Streamlit Arayüzünü Gizleme
 st.markdown("""
 <style>
 @media print {
@@ -23,7 +23,7 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# Veritabanı Mimarisi
+# Veritabanı Kurulumu
 conn = sqlite3.connect('art_dizayn_full.db', check_same_thread=False)
 c = conn.cursor()
 
@@ -58,8 +58,7 @@ def to_excel():
         df_s = pd.read_sql_query("SELECT id as 'Stok No', malzeme_adi as 'Malzeme', kategori as 'Kategori', miktar as 'Miktar', birim as 'Birim', kritik_seviye as 'Kritik Seviye' FROM stok", conn)
         df_s.to_excel(writer, sheet_name='Depo Stok', index=False)
         
-    processed_data = output.getvalue()
-    return processed_data
+    return output.getvalue()
 
 st.title("🏗️ ART DİZAYN - Bütünleşik İmalat & Finans ERP Paneli")
 
@@ -106,7 +105,7 @@ with tab_grafik:
     col3.metric("Kalan Net Alacak", f"{kalan_alacak:,.2f} TL")
 
 # ---------------------------------------------------------
-# 2. TEKLİF FORMU OLUŞTURUCU (TABLO TABANLI TASARIM)
+# 2. TEKLİF FORMU OLUŞTURUCU (HTML KOD SIZINTISI GİDERİLDİ)
 # ---------------------------------------------------------
 with tab_teklif:
     st.subheader("📄 Kurumsal Teklif Formu Hazırlama Paneli")
@@ -166,22 +165,19 @@ with tab_teklif:
         ara_toplam = 0.0
         for item in st.session_state.teklif_kalemleri:
             ara_toplam += item["Toplam Tutar"]
-            table_rows_html += f"""
-            <tr style="border-bottom: 1px solid #e2e8f0; font-size: 12px;">
+            table_rows_html += f"""<tr style="border-bottom: 1px solid #e2e8f0; font-size: 12px;">
                 <td style="padding: 8px; text-align: center;">{item['Sıra']}</td>
                 <td style="padding: 8px;">{item['Açıklama']}</td>
                 <td style="padding: 8px; text-align: center;">{item['Miktar']} {item['Birim']}</td>
                 <td style="padding: 8px; text-align: right;">{item['Birim Fiyat']:,.2f} TL</td>
                 <td style="padding: 8px; text-align: right; font-weight: bold;">{item['Toplam Tutar']:,.2f} TL</td>
-            </tr>
-            """
+            </tr>"""
             
         kdv_tutar = ara_toplam * 0.20
         genel_toplam = ara_toplam + kdv_tutar
         formatted_sartlar = tf_sartlar.replace("\n", "<br>")
         
-        teklif_html_full = f"""
-        <div style="border: 1px solid #d1d5db; padding: 25px; border-radius: 8px; background-color: #ffffff; font-family: Arial, sans-serif; color: #1f2937;">
+        teklif_html_full = f"""<div style="border: 1px solid #d1d5db; padding: 25px; border-radius: 8px; background-color: #ffffff; font-family: Arial, sans-serif; color: #1f2937;">
             <table style="width: 100%; border-collapse: collapse; border-bottom: 3px solid #0F2C59; padding-bottom: 12px; margin-bottom: 15px;">
                 <tr>
                     <td style="vertical-align: middle;">
@@ -195,12 +191,10 @@ with tab_teklif:
                     </td>
                 </tr>
             </table>
-            
             <div style="background-color: #f8fafc; border-left: 4px solid #0F2C59; padding: 10px 12px; margin-bottom: 15px; border-radius: 0 4px 4px 0;">
                 <p style="margin:0; font-size: 12px;"><b>Sayın / Firma:</b> {tf_musteri}</p>
                 <p style="margin:2px 0 0 0; font-size: 12px;"><b>İlgili Kişi:</b> {tf_yetkili} | <b>Tel:</b> {tf_tel}</p>
             </div>
-            
             <table style="width: 100%; border-collapse: collapse; margin-bottom: 15px;">
                 <thead>
                     <tr style="background-color: #0F2C59; color: #ffffff; font-size: 12px;">
@@ -215,7 +209,6 @@ with tab_teklif:
                     {table_rows_html if table_rows_html else '<tr><td colspan="5" style="padding:15px; text-align:center; color:#999; font-size:12px;">Henüz kalem eklenmedi.</td></tr>'}
                 </tbody>
             </table>
-            
             <table style="width: 250px; margin-left: auto; border-collapse: collapse; margin-top: 10px;">
                 <tr>
                     <td style="padding: 4px 0; font-size: 12px; color: #475569;">Ara Toplam:</td>
@@ -230,14 +223,12 @@ with tab_teklif:
                     <td style="padding: 6px 0 0 0; font-size: 13px; font-weight: bold; text-align: right; color: #0F2C59;">{genel_toplam:,.2f} TL</td>
                 </tr>
             </table>
-            
             <div style="margin-top: 20px; border-top: 1px solid #e2e8f0; padding-top: 10px;">
                 <h5 style="margin:0 0 5px 0; color: #0F2C59; font-size:12px;">TEKLİF KOŞULLARI & ŞARTLAR</h5>
                 <div style="font-size: 10px; color: #475569; line-height: 1.4; background-color: #fafafa; padding: 8px; border-radius: 4px;">
                     {formatted_sartlar}
                 </div>
             </div>
-            
             <table style="width: 100%; margin-top: 35px; border-collapse: collapse;">
                 <tr>
                     <td style="width: 50%; text-align: center; font-size: 11px; color: #334155;">
@@ -250,17 +241,17 @@ with tab_teklif:
                     </td>
                 </tr>
             </table>
-        </div>
-        """
+        </div>"""
+        
+        # HTML Render Komutu (unsafe_allow_html ZORUNLUDUR)
         st.markdown(teklif_html_full, unsafe_allow_html=True)
-        st.info("💡 **PDF Olarak Kaydetme:** Klavyenizden **Ctrl + P** yaparak *PDF Olarak Kaydet* seçeneğini kullanabilirsiniz.")
+        st.info("💡 **PDF Çıktısı Almak İçin:** Klavyenizden **Ctrl + P** tuşlarına basarak *PDF Olarak Kaydet* seçebilirsiniz.")
 
 # ---------------------------------------------------------
-# 3. MÜŞTERİ YÖNETİMİ, BORÇ İŞLEME, ÖDEME ALMA VE TAKVİM
+# 3. MÜŞTERİ YÖNETİMİ & BORÇ / İŞ / ÖDEME EKLEME
 # ---------------------------------------------------------
 with tab_musteri:
     st.subheader("👤 Müşteri Cari Yönetimi, Borç İşleme & Tahsilat")
-    
     col_m1, col_m2 = st.columns([1, 2])
     
     with col_m1:
@@ -270,14 +261,14 @@ with tab_musteri:
         tel = st.text_input("Telefon", "+905320000000")
         adr = st.text_area("Adres")
         
-        if st.button("💾 Müşteriyi Sistem Kaydet", use_container_width=True):
+        if st.button("💾 Müşteriyi Siste Kaydet", use_container_width=True):
             if f_adi.strip():
                 c.execute("INSERT INTO musteriler (firma_adi, yetkili, telefon, adres) VALUES (?, ?, ?, ?)", (f_adi, y_adi, tel, adr))
                 conn.commit()
-                st.success("Müşteri başarıyla eklendi!")
+                st.success("Müşteri kaydı yapıldı!")
                 st.rerun()
             else:
-                st.error("Müşteri/Firma Adı zorunludur!")
+                st.error("Lütfen müşteri adını girin!")
 
     with col_m2:
         st.write("### 🔍 Müşteri Listesi & Cari Durum")
@@ -285,11 +276,9 @@ with tab_musteri:
         
         if not df_m.empty:
             st.dataframe(df_m, use_container_width=True)
-            
             st.markdown("---")
             st.write("### 🛠️ Müşteriye İş / Borç İşleme & Takvim Oluşturma")
             
-            # Müşteri Seçimi
             musteri_dict = dict(zip(df_m['ID'], df_m['Firma']))
             secilen_m_id = st.selectbox("İş / Borç Eklenecek Müşteriyi Seçin", options=list(musteri_dict.keys()), format_func=lambda x: f"{musteri_dict[x]} (ID: {x})")
             
@@ -302,17 +291,14 @@ with tab_musteri:
                 btn_is_ekle = st.form_submit_button("🛠️ İş Kaydını İşle ve Takvime Ekle")
                 
                 if btn_is_ekle:
-                    c.execute("""INSERT INTO isler (musteri_id, isin_cinsi, toplam_tutar, tarih, montaj_tarihi) 
-                                 VALUES (?, ?, ?, ?, ?)""", 
+                    c.execute("INSERT INTO isler (musteri_id, isin_cinsi, toplam_tutar, tarih, montaj_tarihi) VALUES (?, ?, ?, ?, ?)", 
                               (secilen_m_id, is_cinsi, is_tutar, is_tarih.strftime('%Y-%m-%d'), montaj_tarihi.strftime('%Y-%m-%d')))
                     conn.commit()
-                    st.success(f"{musteri_dict[secilen_m_id]} firmasına {is_tutar:,.2f} TL tutarında iş kaydedildi ve takvime işlendi!")
+                    st.success(f"{musteri_dict[secilen_m_id]} müşterisine borç işlendi ve montaj takvime eklendi!")
                     st.rerun()
             
             st.markdown("---")
             st.write("### 💵 Ödeme (Tahsilat) Alma")
-            
-            # Seçilen Müşterinin İşleri
             df_m_isler = pd.read_sql_query(f"SELECT id, isin_cinsi, toplam_tutar FROM isler WHERE musteri_id = {secilen_m_id}", conn)
             
             if not df_m_isler.empty:
@@ -327,19 +313,18 @@ with tab_musteri:
                     btn_tahsilat = st.form_submit_button("💵 Ödemeyi Kaydet")
                     
                     if btn_tahsilat:
-                        c.execute("""INSERT INTO tahsilatlar (is_id, musteri_id, odenen_tutar, tarih, aciklama) 
-                                     VALUES (?, ?, ?, ?, ?)""", 
+                        c.execute("INSERT INTO tahsilatlar (is_id, musteri_id, odenen_tutar, tarih, aciklama) VALUES (?, ?, ?, ?, ?)", 
                                   (secilen_is_id, secilen_m_id, odenen_tutar, tahsilat_tarihi.strftime('%Y-%m-%d'), aciklama))
                         conn.commit()
-                        st.success("Ödeme kaydı oluşturuldu ve kasaya işlendi!")
+                        st.success("Tahsilat kaydı başarıyla alındı!")
                         st.rerun()
             else:
-                st.info("Bu müşteriye ait tanımlı bir iş bulunmuyor. Önce yukarıdan iş kaydı oluşturun.")
+                st.info("Bu müşteriye ait henüz tanımlanmış bir iş bulunmuyor.")
         else:
-            st.warning("Sistemde kayıtlı müşteri bulunmuyor. Sol taraftan müşteri ekleyebilirsiniz.")
+            st.warning("Kayıtlı müşteri bulunamadı.")
 
 # ---------------------------------------------------------
-# 4. ÖLÇÜ & METRAJ HESABI
+# 4. ÖLÇÜ HESABI
 # ---------------------------------------------------------
 with tab_hesap:
     st.subheader("📏 En x Boy Ölçüsünden Otomatik Profil ve Cam Hesabı")
@@ -391,7 +376,7 @@ with tab_takvim:
     if not df_takvim.empty:
         st.dataframe(df_takvim, use_container_width=True)
     else:
-        st.info("Planlanmış bir şantiye montajı bulunmuyor. 'Müşteri & İş/Ödeme Kaydı' sekmesinden yeni iş ve montaj tarihi ekleyebilirsiniz.")
+        st.info("Planlanmış bir şantiye montajı bulunmuyor.")
 
 # ---------------------------------------------------------
 # 7. DEPO & STOK TAKİBİ
